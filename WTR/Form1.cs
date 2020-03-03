@@ -30,7 +30,7 @@ namespace WTR
         }
 
         string SavePath, StartWorkTime;
-        public int PointX, PointY;
+        public static int PointX, PointY;
 
         #region 调用CMD获取局域网指定电脑时间
         private string GetTime(TimeType timeType)
@@ -271,6 +271,8 @@ namespace WTR
 
             调试模式ToolStripMenuItem.Checked = false;
 
+            PointX = Settings1.Default.PointX == 0 ? 1600 : Settings1.Default.PointX;
+            PointY = Settings1.Default.PointY == 0 ? 80 : Settings1.Default.PointY;
             this.Location = new Point(PointX, PointY);
 
             SystemEvents.SessionSwitch += new
@@ -316,13 +318,13 @@ namespace WTR
             this.Close();
         }
 
+        public static SettingForm form;//声明窗体类的静态变量
         private void 设置ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SettingForm form = new SettingForm();
             //防止重复打开
             if (form == null || form.IsDisposed)
             {
-                form.setFormTextValue += new SettingForm.setTextValue(SetLocation);
+                form = new SettingForm();
                 form.Show();
             }
             else
@@ -330,7 +332,6 @@ namespace WTR
         }
         void SetLocation(int X,int Y)
         {
-            //具体实现。
             this.Location = new Point(X, Y);
         }
 

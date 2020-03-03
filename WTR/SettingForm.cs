@@ -12,17 +12,14 @@ namespace WTR
 {
     public partial class SettingForm : Form
     {
-        public event setTextValue setFormTextValue;
-
         public SettingForm()
         {
             InitializeComponent();
         }
 
-        WTR form1 = new WTR();
-
         private void button1_Click(object sender, EventArgs e)
         {
+            WTR form1 = new WTR();
             form1.SelectFolder();
         }
 
@@ -40,11 +37,10 @@ namespace WTR
 
         public void SaveLocation()
         {
-            form1.PointX = int.Parse(this.textBox1.Text);
-            form1.PointY = int.Parse(this.textBox2.Text);
-            setFormTextValue(form1.PointX, form1.PointY);
-            Settings1.Default.PointX = form1.PointX;
-            Settings1.Default.PointY = form1.PointY;
+            WTR.PointX = int.Parse(this.textBox1.Text);
+            WTR.PointY = int.Parse(this.textBox2.Text);
+            Settings1.Default.PointX = WTR.PointX;
+            Settings1.Default.PointY = WTR.PointY;
             Settings1.Default.Save();
         }
     }
