@@ -12,36 +12,45 @@ namespace WTR
 {
     public partial class SettingForm : Form
     {
-        public SettingForm()
+        //用于保存主窗体对象引用
+        private WTR mainForm = null;
+        //从外部将主窗体对象“注入”进来
+        public SettingForm(WTR main)
         {
             InitializeComponent();
+            mainForm = main;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             WTR form1 = new WTR();
             form1.SelectFolder();
+            textBox3.Text = Settings1.Default.SavePath;
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
-            SaveLocation();
+            int x, y;
+            if (String.IsNullOrEmpty(textBox1.Text.Trim()) || String.IsNullOrEmpty(textBox2.Text.Trim()))
+            {
+                MessageBox.Show("不可以为空哦", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                if (int.TryParse(textBox1.Text, out x) && int.TryParse(textBox2.Text, out y))
+                {
+                    mainForm.SetLocation(x, y);
+                }
+                else
+                {
+                    MessageBox.Show("别乱输哦", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
+        private void SettingForm_Load(object sender, EventArgs e)
         {
-            SaveLocation();
-        }
-
-        public delegate void setTextValue(int X,int Y);
-
-        public void SaveLocation()
-        {
-            WTR.PointX = int.Parse(this.textBox1.Text);
-            WTR.PointY = int.Parse(this.textBox2.Text);
-            Settings1.Default.PointX = WTR.PointX;
-            Settings1.Default.PointY = WTR.PointY;
-            Settings1.Default.Save();
+            textBox3.Text = Settings1.Default.SavePath;
         }
     }
 }

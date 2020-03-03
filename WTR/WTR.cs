@@ -25,12 +25,13 @@ namespace WTR
         enum TimeType
         {
             FullTime,
+            YearMonth,
             YearMonthDay,
             HourMinuteSecond
         }
 
         string SavePath, StartWorkTime;
-        public static int PointX, PointY;
+        int PointX, PointY;
 
         #region 调用CMD获取局域网指定电脑时间
         private string GetTime(TimeType timeType)
@@ -60,6 +61,9 @@ namespace WTR
                 case "ja-JP":
                     output = output.Split(new char[] { 'は', 'で' }, StringSplitOptions.RemoveEmptyEntries)[1].Trim();
                     break;
+                case "zh-CN"://自己电脑上调试用
+                    output = DateTime.Now.ToString();
+                    break;
                 default:
                     System.Windows.Forms.MessageBox.Show("只支持日语系统");
                     break;
@@ -67,6 +71,7 @@ namespace WTR
 
             string[] ArrayTime = output.Split(new char[] { '/', ' ', ':' }, StringSplitOptions.RemoveEmptyEntries);
             string fullTime = output.Trim();
+            string yearMonth = (ArrayTime[0] + "_" + ArrayTime[1] + "_".Trim());
             string yearMonthDay = (ArrayTime[0] + "/" + ArrayTime[1] + "/" + ArrayTime[2]).Trim();
             string hourMinuteSecond = (ArrayTime[3] + "：" + ArrayTime[4] + "：" + ArrayTime[5]).Trim();
 
@@ -82,6 +87,9 @@ namespace WTR
                         break;
                     case TimeType.HourMinuteSecond:
                         return hourMinuteSecond;
+                        break;
+                    case TimeType.YearMonth:
+                        return yearMonth;
                         break;
                     default:
                         return "error";
@@ -145,7 +153,7 @@ namespace WTR
             try
             {
                 string Lock = "屏幕解锁时间：";
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "/log.txt", true))
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt", true))
                 {
                     file.WriteLine(Lock + GetTime(TimeType.FullTime));
                     file.Close();
@@ -165,7 +173,8 @@ namespace WTR
             try
             {
                 string UnLock = "屏幕锁定时间：";
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "/log.txt", true))
+                string q = SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt";
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt", true))
                 {
                     file.WriteLine(UnLock + GetTime(TimeType.FullTime));
                     file.Close();
@@ -191,7 +200,7 @@ namespace WTR
         private void ReadLog()
         {
             string EndWorkTime = "Not found";
-            StreamReader sr = new StreamReader(SavePath + "/log.txt");
+            StreamReader sr = new StreamReader(SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt");
             bool flag = false;
             string lasttime = "not found";
             while (!sr.EndOfStream)
@@ -216,9 +225,9 @@ namespace WTR
             if (flag)
             {
                 bool WriteInToKaoqin = false;
-                if (File.Exists(SavePath + "/kaoqin.txt"))
+                if (File.Exists(SavePath + "//" + GetTime(TimeType.YearMonth) + "kaoqin.txt"))
                 {
-                    StreamReader kq = new StreamReader(SavePath + "/kaoqin.txt");
+                    StreamReader kq = new StreamReader(SavePath + "//" + GetTime(TimeType.YearMonth) + "kaoqin.txt");
                     while (!kq.EndOfStream)
                     {
                         string[] date;
@@ -243,7 +252,7 @@ namespace WTR
 
                 if (WriteInToKaoqin)
                 {
-                    using (System.IO.StreamWriter kq = new System.IO.StreamWriter(SavePath + "/kaoqin.txt", true))
+                    using (System.IO.StreamWriter kq = new System.IO.StreamWriter(SavePath + "//" + GetTime(TimeType.YearMonth) + "kaoqin.txt", true))
                     {
                         kq.WriteLine("下班时间：" + EndWorkTime);
                         kq.WriteLine("上班时间：" + StartWorkTime);
@@ -269,6 +278,7 @@ namespace WTR
             StartWorkTime = Settings1.Default.StartWorkTime == "" ? "Not found" : Settings1.Default.StartWorkTime;
             this.label2.Text = StartWorkTime;
 
+            this.button1.BackColor = Color.Yellow;
             调试模式ToolStripMenuItem.Checked = false;
 
             PointX = Settings1.Default.PointX == 0 ? 1600 : Settings1.Default.PointX;
@@ -280,18 +290,20 @@ namespace WTR
         }
 
         #region 调试用
-        bool Lock = false;
+        bool Lock = true;
         private void button1_Click(object sender, EventArgs e)
         {
             Lock = !Lock;
-            if(Lock)
+            if (Lock)
             {
                 End();
+                this.button1.BackColor = Color.Red;
                 this.button1.Text = "Lock";
             }
             else
             {
                 Start();
+                this.button1.BackColor = Color.Yellow;
                 this.button1.Text = "Unlock";
             }
         }
@@ -324,15 +336,19 @@ namespace WTR
             //防止重复打开
             if (form == null || form.IsDisposed)
             {
-                form = new SettingForm();
+                form = new SettingForm(this);//加入this用于传location值，主窗体把自己的引用传给从窗体对象
                 form.Show();
             }
             else
                 form.Activate();
         }
-        void SetLocation(int X,int Y)
+        public void SetLocation(int X,int Y)
         {
             this.Location = new Point(X, Y);
+            Settings1.Default.PointX = X;
+            Settings1.Default.PointY = Y;
+            Settings1.Default.Save();
+
         }
 
 
