@@ -50,7 +50,28 @@ namespace WTR
 
         private void SettingForm_Load(object sender, EventArgs e)
         {
+            label1.Text = string.Empty;
             textBox3.Text = Settings1.Default.SavePath;
+            comboBox1.SelectedIndex = Settings1.Default.NetTime ? 1 : 0;
+        }
+
+        private void comboBox1_TextChanged(object sender, EventArgs e)
+        {
+            Settings1.Default.NetTime = comboBox1.SelectedIndex == 1;
+            Settings1.Default.Save();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            label1.Text = "字体设置不保存，重启软件即可恢复为默认字体";
+            label1.ForeColor = Color.Red;
+            if (this.fontDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Font font = this.fontDialog1.Font;
+                Color color = this.fontDialog1.Color;
+                mainForm.SetFont(font, color);
+            }
+            label1.Text = string.Empty;
         }
     }
 }

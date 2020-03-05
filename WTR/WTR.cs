@@ -12,13 +12,6 @@ using System.Windows.Forms;
 using System.IO;
 using WTR.Properties;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 namespace WTR
@@ -40,74 +33,86 @@ namespace WTR
 
         string SavePath, StartWorkTime;
         int PointX, PointY;
+        static bool NetTime;
 
-        #region 调用CMD获取局域网指定电脑时间
+        #region 时间
         private string GetTime(TimeType timeType)
         {
-            System.Diagnostics.Process p = new System.Diagnostics.Process();
-            p.StartInfo.FileName = "cmd.exe";
-            p.StartInfo.UseShellExecute = false;    //是否使用操作系统shell启动
-            p.StartInfo.RedirectStandardInput = true;//接受来自调用程序的输入信息
-            p.StartInfo.RedirectStandardOutput = true;//由调用程序获取输出信息
-            p.StartInfo.RedirectStandardError = true;//重定向标准错误输出
-            p.StartInfo.CreateNoWindow = true;//不显示程序窗口
-            p.Start();//启动程序
-
-            //向cmd窗口发送输入信息
-            p.StandardInput.WriteLine(@"net time " + "&exit"); //设置文件的格式: net_time
-
-            p.StandardInput.AutoFlush = true;
-
-            //获取cmd窗口的输出信息
-            string output = p.StandardOutput.ReadToEnd();
-
-            p.WaitForExit();
-            p.Close();
-
+            DateTime GetedTime = DateTime.MinValue;
             switch (System.Threading.Thread.CurrentThread.CurrentCulture.Name)
             {
                 case "ja-JP":
-                    output = output.Split(new char[] { 'は', 'で' }, StringSplitOptions.RemoveEmptyEntries)[1].Trim();
+                    if(Settings1.Default.NetTime)
+                    {
+                        try
+                        {
+                            string output;
+                            System.Diagnostics.Process p = new System.Diagnostics.Process();
+                            p.StartInfo.FileName = "cmd.exe";
+                            p.StartInfo.UseShellExecute = false;    //是否使用操作系统shell启动
+                            p.StartInfo.RedirectStandardInput = true;//接受来自调用程序的输入信息
+                            p.StartInfo.RedirectStandardOutput = true;//由调用程序获取输出信息
+                            p.StartInfo.RedirectStandardError = true;//重定向标准错误输出
+                            p.StartInfo.CreateNoWindow = true;//不显示程序窗口
+                            p.Start();//启动程序
+
+                            //向cmd窗口发送输入信息
+                            p.StandardInput.WriteLine(@"net time " + "&exit"); //设置文件的格式: net_time
+
+                            p.StandardInput.AutoFlush = true;
+
+                            //获取cmd窗口的输出信息
+                            output = p.StandardOutput.ReadToEnd();
+
+                            p.WaitForExit();
+                            p.Close();
+                            output = output.Split(new char[] { 'は', 'で' }, StringSplitOptions.RemoveEmptyEntries)[1].Trim();
+                            GetedTime = Convert.ToDateTime(output);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("获取时间失败，可能是网线没有插好");
+                            return "error";
+                        }
+                    }
+                    else
+                    {
+                        GetedTime = DateTime.Now;
+                    }
                     break;
+
                 case "zh-CN"://自己电脑上调试用
-                    output = DateTime.Now.ToString();
+                    if (调试模式ToolStripMenuItem.Checked)
+                    {
+                        GetedTime = DateTime.Now;
+                    }
+                    else
+                    {
+                        System.Windows.Forms.MessageBox.Show("只支持日语系统");
+                    }
                     break;
                 default:
                     System.Windows.Forms.MessageBox.Show("只支持日语系统");
                     break;
             }
+            
+            string fullTime = GetedTime.ToString("yyyy/MM/dd hh:mm:ss");
+            string yearMonth = GetedTime.ToString("yyyyMM") + "_";
+            string yearMonthDay = GetedTime.ToString("yyyy/MM/dd");
+            string hourMinuteSecond = GetedTime.ToString("hh:mm:ss");
 
-            string[] ArrayTime = output.Split(new char[] { '/', ' ', ':' }, StringSplitOptions.RemoveEmptyEntries);
-            string fullTime = output.Trim();
-            string yearMonth = (ArrayTime[0] + "_" + ArrayTime[1] + "_".Trim());
-            string yearMonthDay = (ArrayTime[0] + "/" + ArrayTime[1] + "/" + ArrayTime[2]).Trim();
-            string hourMinuteSecond = (ArrayTime[3] + "：" + ArrayTime[4] + "：" + ArrayTime[5]).Trim();
-
-            try
+            switch (timeType)
             {
-                switch (timeType)
-                {
-                    case TimeType.FullTime:
-                        return fullTime;
-                        break;
-                    case TimeType.YearMonthDay:
-                        return yearMonthDay;
-                        break;
-                    case TimeType.HourMinuteSecond:
-                        return hourMinuteSecond;
-                        break;
-                    case TimeType.YearMonth:
-                        return yearMonth;
-                        break;
-                    default:
-                        return "error";
-                        break;
-                }
-            }
-            catch
-            {
-                MessageBox.Show("获取时间失败，可能是网线没有插好");
-                return "error";
+                case TimeType.FullTime:
+                    return fullTime;
+                case TimeType.YearMonthDay:
+                    return yearMonthDay;
+                case TimeType.HourMinuteSecond:
+                    return hourMinuteSecond;
+                case TimeType.YearMonth:
+                    return yearMonth;
+                default:
+                    return "error";
             }
         }
         #endregion
@@ -266,7 +271,7 @@ namespace WTR
                         kq.WriteLine("上班时间：" + StartWorkTime);
                         kq.Close();
                         Settings1.Default.StartWorkTime = StartWorkTime;
-                        this.label2.Text = StartWorkTime;
+                        this.label2.Text = "出勤時間:"+StartWorkTime;
                         Settings1.Default.Save();
                     }
                 }
@@ -283,8 +288,10 @@ namespace WTR
             {
                 SavePath = Settings1.Default.SavePath;
             }
+
+            NetTime = Settings1.Default.NetTime;
             StartWorkTime = Settings1.Default.StartWorkTime == "" ? "Not found" : Settings1.Default.StartWorkTime;
-            this.label2.Text = StartWorkTime;
+            this.label2.Text = "出勤時間:" + StartWorkTime;
 
             this.button1.BackColor = Color.Yellow;
             调试模式ToolStripMenuItem.Checked = false;
@@ -331,6 +338,32 @@ namespace WTR
                 this.TransparencyKey = System.Drawing.Color.White;
             }
         }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            checkBox1.Text = string.Format("每隔{0}ms自动点击一次左边的按钮", textBox1.Text);
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //只能输入数字和退格
+            if (!(Char.IsNumber(e.KeyChar) || e.KeyChar == (char)8))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void checkBox1_CheckStateChanged(object sender, EventArgs e)
+        {
+            if(checkBox1.Checked)
+            {
+                while(true)
+                {
+                    button1.PerformClick();
+                    Thread.Sleep(int.Parse(textBox1.Text));
+                }
+            }
+        }
         #endregion
 
         private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -356,7 +389,11 @@ namespace WTR
             Settings1.Default.PointX = X;
             Settings1.Default.PointY = Y;
             Settings1.Default.Save();
-
+        }
+        public void SetFont(Font font, Color color)
+        {
+            this.label2.Font = font;
+            this.label2.ForeColor = color;
         }
 
 
@@ -433,6 +470,7 @@ namespace WTR
         private const int WM_HOTKEY = 0x312; //窗口消息-热键
         private const int WM_CREATE = 0x1; //窗口消息-创建
         private const int WM_DESTROY = 0x2; //窗口消息-销毁
+
         private const int Space = 0x3572; //热键ID
         protected override void WndProc(ref Message m)
         {
