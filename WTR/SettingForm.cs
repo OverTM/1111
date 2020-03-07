@@ -63,13 +63,24 @@ namespace WTR
 
         private void button3_Click(object sender, EventArgs e)
         {
-            label1.Text = "字体设置不保存，重启软件即可恢复为默认字体";
+            label1.Text = "字体及颜色设置不保存，\n重启软件即可恢复为默认字体";
             label1.ForeColor = Color.Red;
             if (this.fontDialog1.ShowDialog() == DialogResult.OK)
             {
                 Font font = this.fontDialog1.Font;
-                Color color = this.fontDialog1.Color;
-                mainForm.SetFont(font, color);
+                mainForm.SetFont(font);
+            }
+            label1.Text = string.Empty;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            label1.Text = "字体及颜色设置不保存，\n重启软件即可恢复为默认字体";
+            label1.ForeColor = Color.Red;
+            if (this.colorDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Color color = this.colorDialog1.Color;
+                mainForm.SetColor(color);
             }
             label1.Text = string.Empty;
         }

@@ -20,6 +20,9 @@ namespace WTR
     {
         public WTR()
         {
+            Updata updata = new Updata();
+            updata.UpdataCheck();
+
             InitializeComponent();
         }
 
@@ -295,6 +298,9 @@ namespace WTR
 
             this.button1.BackColor = Color.Yellow;
             调试模式ToolStripMenuItem.Checked = false;
+            this.checkBox1.Visible = false;
+            this.textBox1.Visible = false;
+            调试模式ToolStripMenuItem.Visible = false;
 
             PointX = Settings1.Default.PointX == 0 ? 1600 : Settings1.Default.PointX;
             PointY = Settings1.Default.PointY == 0 ? 80 : Settings1.Default.PointY;
@@ -305,6 +311,24 @@ namespace WTR
         }
 
         #region 调试用
+        //private void WTR_KeyPress(object sender, KeyPressEventArgs e)
+        //{
+        //    if ((Keys)e.KeyChar == Keys.F11)
+        //    {
+        //        e.Handled = true;   //将Handled设置为true，指示已经处理过KeyPress事件  
+        //        调试模式ToolStripMenuItem.Visible = !调试模式ToolStripMenuItem.Visible;
+        //    }  
+        //}
+
+        private void WTR_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F11)
+            {
+                //e.Handled = true;   //将Handled设置为true，指示已经处理过KeyPress事件  
+                调试模式ToolStripMenuItem.Visible = true;
+            }  
+        }
+
         bool Lock = true;
         private void button1_Click(object sender, EventArgs e)
         {
@@ -330,12 +354,17 @@ namespace WTR
                 this.button1.Visible = true;
                 this.BackColor = System.Drawing.Color.Green;
                 this.TransparencyKey = System.Drawing.Color.YellowGreen;
+                this.checkBox1.Visible = true;
+                this.textBox1.Visible = true;
             }
             else
             {
                 this.button1.Visible = false;
                 this.BackColor = System.Drawing.Color.White;
                 this.TransparencyKey = System.Drawing.Color.White;
+                this.checkBox1.Visible = false;
+                this.textBox1.Visible = false;
+                调试模式ToolStripMenuItem.Visible = false;
             }
         }
 
@@ -390,10 +419,13 @@ namespace WTR
             Settings1.Default.PointY = Y;
             Settings1.Default.Save();
         }
-        public void SetFont(Font font, Color color)
+        public void SetFont(Font font)
         {
             this.label2.Font = font;
-            this.label2.ForeColor = color;
+        }
+        public void SetColor(Color color)
+        {
+            this.label2.ForeColor = (Color)color;
         }
 
 

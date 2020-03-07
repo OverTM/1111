@@ -45,7 +45,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label2.ForeColor = System.Drawing.Color.Black;
             this.label2.Location = new System.Drawing.Point(3, 1);
             this.label2.Name = "label2";
@@ -98,7 +98,7 @@
             // 
             this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "notifyIcon1";
+            this.notifyIcon1.Text = "WTR";
             this.notifyIcon1.Visible = true;
             this.notifyIcon1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseClick);
             // 
@@ -107,7 +107,7 @@
             this.checkBox1.AutoSize = true;
             this.checkBox1.Location = new System.Drawing.Point(192, 55);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(78, 16);
+            this.checkBox1.Size = new System.Drawing.Size(80, 16);
             this.checkBox1.TabIndex = 3;
             this.checkBox1.Text = "checkBox1";
             this.checkBox1.UseVisualStyleBackColor = true;
@@ -117,7 +117,7 @@
             // 
             this.textBox1.Location = new System.Drawing.Point(129, 50);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(57, 21);
+            this.textBox1.Size = new System.Drawing.Size(57, 19);
             this.textBox1.TabIndex = 4;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
@@ -138,6 +138,7 @@
             this.Text = "Form1";
             this.TransparencyKey = System.Drawing.Color.White;
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.WTR_KeyDown);
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
