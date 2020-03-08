@@ -39,13 +39,15 @@
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label2.ForeColor = System.Drawing.Color.Black;
             this.label2.Location = new System.Drawing.Point(3, 1);
             this.label2.Name = "label2";
@@ -67,30 +69,30 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.退出ToolStripMenuItem,
             this.设置ToolStripMenuItem,
-            this.调试模式ToolStripMenuItem});
+            this.调试模式ToolStripMenuItem,
+            this.退出ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(125, 70);
             // 
             // 退出ToolStripMenuItem
             // 
             this.退出ToolStripMenuItem.Name = "退出ToolStripMenuItem";
-            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.退出ToolStripMenuItem.Text = "退出";
             this.退出ToolStripMenuItem.Click += new System.EventHandler(this.退出ToolStripMenuItem_Click);
             // 
             // 设置ToolStripMenuItem
             // 
             this.设置ToolStripMenuItem.Name = "设置ToolStripMenuItem";
-            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.设置ToolStripMenuItem.Text = "设置";
             this.设置ToolStripMenuItem.Click += new System.EventHandler(this.设置ToolStripMenuItem_Click);
             // 
             // 调试模式ToolStripMenuItem
             // 
             this.调试模式ToolStripMenuItem.Name = "调试模式ToolStripMenuItem";
-            this.调试模式ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.调试模式ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.调试模式ToolStripMenuItem.Text = "调试模式";
             this.调试模式ToolStripMenuItem.Click += new System.EventHandler(this.调试模式ToolStripMenuItem_Click);
             // 
@@ -105,9 +107,9 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(192, 55);
+            this.checkBox1.Location = new System.Drawing.Point(154, 55);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(80, 16);
+            this.checkBox1.Size = new System.Drawing.Size(78, 16);
             this.checkBox1.TabIndex = 3;
             this.checkBox1.Text = "checkBox1";
             this.checkBox1.UseVisualStyleBackColor = true;
@@ -115,19 +117,30 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(129, 50);
+            this.textBox1.Location = new System.Drawing.Point(91, 50);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(57, 19);
+            this.textBox1.Size = new System.Drawing.Size(57, 21);
             this.textBox1.TabIndex = 4;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(7, 80);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(66, 23);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "更新";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // WTR
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(467, 76);
+            this.ClientSize = new System.Drawing.Size(467, 104);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.button1);
@@ -155,6 +168,8 @@
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
 

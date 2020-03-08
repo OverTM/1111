@@ -13,6 +13,7 @@ using System.IO;
 using WTR.Properties;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
 
 namespace WTR
 {
@@ -20,18 +21,7 @@ namespace WTR
     {
         public WTR()
         {
-            Updata updata = new Updata();
-            updata.UpdataCheck();
-
             InitializeComponent();
-        }
-
-        enum TimeType
-        {
-            FullTime,
-            YearMonth,
-            YearMonthDay,
-            HourMinuteSecond
         }
 
         string SavePath, StartWorkTime;
@@ -39,7 +29,8 @@ namespace WTR
         static bool NetTime;
 
         #region 时间
-        private string GetTime(TimeType timeType)
+        string FullTime, YearMonth, YearMonthDay, HourMinuteSecond;
+        private void GetTime(ref string FullTime, ref string YearMonth, ref string YearMonthDay, ref string HourMinuteSecond )
         {
             DateTime GetedTime = DateTime.MinValue;
             switch (System.Threading.Thread.CurrentThread.CurrentCulture.Name)
@@ -74,8 +65,7 @@ namespace WTR
                         }
                         catch
                         {
-                            MessageBox.Show("获取时间失败，可能是网线没有插好");
-                            return "error";
+                            MessageBox.Show("获取时间失败，可能是网线没有插好","错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     else
@@ -98,25 +88,11 @@ namespace WTR
                     System.Windows.Forms.MessageBox.Show("只支持日语系统");
                     break;
             }
-            
-            string fullTime = GetedTime.ToString("yyyy/MM/dd hh:mm:ss");
-            string yearMonth = GetedTime.ToString("yyyyMM") + "_";
-            string yearMonthDay = GetedTime.ToString("yyyy/MM/dd");
-            string hourMinuteSecond = GetedTime.ToString("hh:mm:ss");
 
-            switch (timeType)
-            {
-                case TimeType.FullTime:
-                    return fullTime;
-                case TimeType.YearMonthDay:
-                    return yearMonthDay;
-                case TimeType.HourMinuteSecond:
-                    return hourMinuteSecond;
-                case TimeType.YearMonth:
-                    return yearMonth;
-                default:
-                    return "error";
-            }
+            FullTime = GetedTime.ToString("yyyy/MM/dd HH:mm:ss");
+            YearMonth = GetedTime.ToString("yyyyMM") + "_";
+            YearMonthDay = GetedTime.ToString("yyyy/MM/dd");
+            HourMinuteSecond = GetedTime.ToString("HH:mm:ss");
         }
         #endregion
 
@@ -145,20 +121,22 @@ namespace WTR
         /// <returns>log文件路径</returns>
         public void SelectFolder()
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "请选择log文件保存路径";
-            if (dialog.ShowDialog() == DialogResult.OK)
+            folderBrowserDialog1.Description = "请选择log文件保存路径";
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
-                SavePath = dialog.SelectedPath;
+                SavePath = folderBrowserDialog1.SelectedPath;
                 SavePath = SavePath.Replace(@"\", "//");
+                Settings1.Default.SavePath = SavePath;
+                Settings1.Default.Save();
+            }
+            else if (Settings1.Default.SavePath == "")
+            {
+                SelectFolder();
             }
             else
             {
-                MessageBox.Show("设置失败,请重新设置");
-                SelectFolder();
+                SavePath = Settings1.Default.SavePath;
             }
-            Settings1.Default.SavePath = SavePath;
-            Settings1.Default.Save();
         }
 
         /// <summary>
@@ -166,18 +144,19 @@ namespace WTR
         /// </summary>
         private void Start()
         {
+            GetTime(ref FullTime, ref YearMonth, ref YearMonthDay, ref HourMinuteSecond);
             try
             {
                 string Lock = "屏幕解锁时间：";
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt", true))
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "//" + YearMonth + "log.txt", true))
                 {
-                    file.WriteLine(Lock + GetTime(TimeType.FullTime));
+                    file.WriteLine(Lock + FullTime);
                     file.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("将屏幕解锁时间写入log文件时失败");
+                MessageBox.Show(ex.Message, "错误信息", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -186,27 +165,28 @@ namespace WTR
         /// </summary>
         private void End()
         {
+            GetTime(ref FullTime, ref YearMonth, ref YearMonthDay, ref HourMinuteSecond);
             try
             {
                 string UnLock = "屏幕锁定时间：";
-                string q = SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt";
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt", true))
+                string q = SavePath + "//" + YearMonth + "log.txt";
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(SavePath + "//" + YearMonth + "log.txt", true))
                 {
-                    file.WriteLine(UnLock + GetTime(TimeType.FullTime));
+                    file.WriteLine(UnLock + FullTime);
                     file.Close();
                 }
                 try
                 {
                     ReadLog();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    MessageBox.Show("读取log或者写入考勤文件时失败");
+                    MessageBox.Show(ex.Message, "错误信息", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("将屏幕锁定时间写入log文件时失败");
+                MessageBox.Show(ex.Message, "错误信息", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -216,7 +196,7 @@ namespace WTR
         private void ReadLog()
         {
             string EndWorkTime = "Not found";
-            StreamReader sr = new StreamReader(SavePath + "//" + GetTime(TimeType.YearMonth) + "log.txt");
+            StreamReader sr = new StreamReader(SavePath + "//" + YearMonth + "log.txt");
             bool flag = false;
             string lasttime = "not found";
             while (!sr.EndOfStream)
@@ -224,7 +204,7 @@ namespace WTR
                 string[] date;
                 string tempdate = sr.ReadLine();
                 date = tempdate.Split(new char[] { '：', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (date[1].Trim() == GetTime(TimeType.YearMonthDay))
+                if (date[1].Trim() == YearMonthDay)
                 {
                     StartWorkTime = date[1] + " " + date[2];
                     flag = true;
@@ -241,15 +221,15 @@ namespace WTR
             if (flag)
             {
                 bool WriteInToKaoqin = false;
-                if (File.Exists(SavePath + "//" + GetTime(TimeType.YearMonth) + "kaoqin.txt"))
+                if (File.Exists(SavePath + "//" + YearMonth + "kaoqin.txt"))
                 {
-                    StreamReader kq = new StreamReader(SavePath + "//" + GetTime(TimeType.YearMonth) + "kaoqin.txt");
+                    StreamReader kq = new StreamReader(SavePath + "//" + YearMonth + "kaoqin.txt");
                     while (!kq.EndOfStream)
                     {
                         string[] date;
                         string tempdate = kq.ReadLine();
                         date = tempdate.Split(new char[] { '：', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        if (date[1].Trim() == GetTime(TimeType.YearMonthDay))
+                        if (date[1].Trim() == YearMonthDay)
                         {
                             WriteInToKaoqin = false;
                             break;
@@ -268,7 +248,7 @@ namespace WTR
 
                 if (WriteInToKaoqin)
                 {
-                    using (System.IO.StreamWriter kq = new System.IO.StreamWriter(SavePath + "//" + GetTime(TimeType.YearMonth) + "kaoqin.txt", true))
+                    using (System.IO.StreamWriter kq = new System.IO.StreamWriter(SavePath + "//" + YearMonth + "kaoqin.txt", true))
                     {
                         kq.WriteLine("下班时间：" + EndWorkTime);
                         kq.WriteLine("上班时间：" + StartWorkTime);
@@ -276,6 +256,12 @@ namespace WTR
                         Settings1.Default.StartWorkTime = StartWorkTime;
                         this.label2.Text = "出勤時間:"+StartWorkTime;
                         Settings1.Default.Save();
+
+                        if (Settings1.Default.AutoCheckUpdade)
+                        {
+                            Update update = new Update();
+                            update.UpdateCheck();//每天做一次更新检查
+                        }
                     }
                 }
             }
@@ -301,6 +287,7 @@ namespace WTR
             this.checkBox1.Visible = false;
             this.textBox1.Visible = false;
             调试模式ToolStripMenuItem.Visible = false;
+            button2.Visible = false;
 
             PointX = Settings1.Default.PointX == 0 ? 1600 : Settings1.Default.PointX;
             PointY = Settings1.Default.PointY == 0 ? 80 : Settings1.Default.PointY;
@@ -324,15 +311,18 @@ namespace WTR
         {
             if (e.KeyCode == Keys.F11)
             {
-                //e.Handled = true;   //将Handled设置为true，指示已经处理过KeyPress事件  
-                调试模式ToolStripMenuItem.Visible = true;
-            }  
+                //调用Microsoft.VisualBasic，使用VB中的inputbox,实现弹出输入框的功能。
+                string str = Interaction.InputBox("请输入密码", "请输入密码", "password", -1, -1);
+                if (str == "我要调试")
+                {
+                    调试模式ToolStripMenuItem.Visible = true;
+                }
+            }
         }
 
         bool Lock = true;
         private void button1_Click(object sender, EventArgs e)
         {
-            Lock = !Lock;
             if (Lock)
             {
                 End();
@@ -345,6 +335,7 @@ namespace WTR
                 this.button1.BackColor = Color.Yellow;
                 this.button1.Text = "Unlock";
             }
+            Lock = !Lock;
         }
         private void 调试模式ToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -352,6 +343,7 @@ namespace WTR
             if (调试模式ToolStripMenuItem.Checked)
             {
                 this.button1.Visible = true;
+                this.button2.Visible = true;
                 this.BackColor = System.Drawing.Color.Green;
                 this.TransparencyKey = System.Drawing.Color.YellowGreen;
                 this.checkBox1.Visible = true;
@@ -360,6 +352,7 @@ namespace WTR
             else
             {
                 this.button1.Visible = false;
+                this.button2.Visible = false;
                 this.BackColor = System.Drawing.Color.White;
                 this.TransparencyKey = System.Drawing.Color.White;
                 this.checkBox1.Visible = false;
@@ -393,6 +386,13 @@ namespace WTR
                 }
             }
         }
+
+        /// <summary>
+        /// 将新版本复制到共享盘
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        partial void button2_Click(object sender, EventArgs e);
         #endregion
 
         private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
